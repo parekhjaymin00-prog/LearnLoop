@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build Artifacts
+dist/
+build/
+.next/
+out/

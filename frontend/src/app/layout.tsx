@@ -11,6 +11,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "LearnLoop | Learn. Share. Grow.",
   description: "A skill-based learning and discussion platform.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

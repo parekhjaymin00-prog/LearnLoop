@@ -134,4 +134,4 @@ Contributions are welcome!
 
 ---
 
-Made with ❤️ by [Jaymin Parekh](https://github.com/parekhjaymin00-prog)
+

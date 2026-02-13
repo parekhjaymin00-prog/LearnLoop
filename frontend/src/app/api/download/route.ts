@@ -4,7 +4,7 @@ export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
         const fileUrl = searchParams.get('url');
-        const filename = searchParams.get('filename') || 'download';
+        let filename = searchParams.get('filename') || 'download';
 
         if (!fileUrl) {
             return NextResponse.json({ error: 'File URL is required' }, { status: 400 });
@@ -19,6 +19,16 @@ export async function GET(req: NextRequest) {
 
         // Get the file as a blob
         const blob = await response.blob();
+
+        // Extract extension from URL if filename doesn't have one
+        if (!filename.includes('.')) {
+            const urlParts = fileUrl.split('/');
+            const urlFilename = urlParts[urlParts.length - 1];
+            const extensionMatch = urlFilename.match(/\.[^.]+$/);
+            if (extensionMatch) {
+                filename += extensionMatch[0];
+            }
+        }
 
         // Return the file with download headers
         return new NextResponse(blob, {

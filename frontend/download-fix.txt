@@ -1,0 +1,9 @@
+﻿if (resource.type === 'file') { 
+    const downloadUrl = '/api/download?url=' + encodeURIComponent(resource.url) + '&filename=' + encodeURIComponent(resource.title || 'download'); 
+    const link = document.createElement('a'); 
+    link.href = downloadUrl; 
+    link.download = resource.title || 'download'; 
+    document.body.appendChild(link); 
+    link.click(); 
+    document.body.removeChild(link); 
+}

@@ -160,7 +160,7 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                                 }
 
                                                 // For file downloads, fetch as blob and trigger download
-                                                if (resource.type === 'file') { const link = document.createElement('a'); link.href = resource.url; link.download = resource.title || 'download'; link.target = '_blank'; link.rel = 'noopener noreferrer'; document.body.appendChild(link); link.click(); document.body.removeChild(link); } else {
+                                                if (resource.type === 'file') { const downloadUrl = `/api/download?url=e:\.gemini\antigravity\scratch\learnloop{encodeURIComponent(resource.url)}&filename=e:\.gemini\antigravity\scratch\learnloop{encodeURIComponent(resource.title || 'download')}`; const link = document.createElement('a'); link.href = downloadUrl; link.download = resource.title || 'download'; document.body.appendChild(link); link.click(); document.body.removeChild(link); } else {
                                                     // For links, open in new tab
                                                     console.log('Opening link in new tab:', resource.url);
                                                     window.open(resource.url, '_blank');

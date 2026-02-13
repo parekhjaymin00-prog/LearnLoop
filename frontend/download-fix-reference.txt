@@ -1,0 +1,25 @@
+// Simple download helper - bypasses CSP by using direct link
+const downloadFile = (url: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+// Usage in onClick:
+onClick={() => {
+    if (!resource.url) {
+        alert(`Cannot download "${resource.title}". This resource doesn't have a download URL.`);
+        return;
+    }
+
+    if (resource.type === 'file') {
+        downloadFile(resource.url, resource.title || 'download');
+    } else {
+        window.open(resource.url, '_blank', 'noopener,noreferrer');
+    }
+}}

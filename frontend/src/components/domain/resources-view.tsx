@@ -165,7 +165,7 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                                         console.log('Fetching file as blob:', resource.url);
 
                                                         // Fetch the file as a blob
-                                                        const response = await fetch(resource.url);
+                                                        const response = await fetch(resource.url, { mode: 'cors', credentials: 'omit' });
                                                         if (!response.ok) throw new Error('Failed to fetch file');
 
                                                         const blob = await response.blob();

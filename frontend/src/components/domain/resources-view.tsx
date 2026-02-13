@@ -155,15 +155,22 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                                 });
 
                                                 if (!resource.url) {
-                                                    alert(`Cannot download "${resource.title}". This resource doesn't have a download URL.\n\nNote: File uploads are not fully implemented yet. Only link-type resources can be downloaded.`);
+                                                    alert(`Cannot download "${resource.title}". This resource doesn't have a download URL.`);
                                                     return;
                                                 }
 
-                                                // For file downloads, fetch as blob and trigger download
-                                                if (resource.type === 'file') { const downloadUrl = `/api/download?url=e:\.gemini\antigravity\scratch\learnloop{encodeURIComponent(resource.url)}&filename=e:\.gemini\antigravity\scratch\learnloop{encodeURIComponent(resource.title || 'download')}`; const link = document.createElement('a'); link.href = downloadUrl; link.download = resource.title || 'download'; document.body.appendChild(link); link.click(); document.body.removeChild(link); } else {
+                                                // For file downloads, use proxy endpoint
+                                                if (resource.type === 'file') {
+                                                    const downloadUrl = '/api/download?url=' + encodeURIComponent(resource.url) + '&filename=' + encodeURIComponent(resource.title || 'download');
+                                                    const link = document.createElement('a');
+                                                    link.href = downloadUrl;
+                                                    link.download = resource.title || 'download';
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                } else {
                                                     // For links, open in new tab
-                                                    console.log('Opening link in new tab:', resource.url);
-                                                    window.open(resource.url, '_blank');
+                                                    window.open(resource.url, '_blank', 'noopener,noreferrer');
                                                 }
                                             }}
                                             title={resource.url ? (resource.type === 'link' ? 'Open link' : 'Download file') : 'No URL available'}
@@ -239,7 +246,8 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                         );
                     })}
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 }

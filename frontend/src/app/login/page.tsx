@@ -3,10 +3,10 @@
 import { AuthForm } from "@/components/auth/auth-form";
 import Link from "next/link";
 import { useUser } from "@/context/user-context";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
     const { user, isLoading } = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -35,5 +35,17 @@ export default function LoginPage() {
                 <AuthForm returnUrl={returnUrl} />
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="animate-spin text-primary text-4xl">∞</div>
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
     );
 }

@@ -5,8 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResourceComments } from "./resource-comments";
 import dynamic from "next/dynamic";
-import { Plus, FileText, Link as LinkIcon, Download, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, FileText, Link as LinkIcon, Download, MessageCircle, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { useUser } from "@/context/user-context";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Lazy load the dialog component - critical for initial load performance
 const AddResourceDialog = dynamic(() => import('./add-resource-dialog'), {
@@ -73,6 +84,26 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
         setExpandedResourceId(expandedResourceId === resourceId ? null : resourceId);
     };
 
+    const handleDelete = async (resourceId: string) => {
+        try {
+            const res = await fetch(`/api/resources/${resourceId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            if (res.ok) {
+                // Remove from local state
+                setResources(resources.filter(r => (r._id || r.id) !== resourceId));
+            } else {
+                const data = await res.json();
+                alert(data.error || 'Failed to delete resource');
+            }
+        } catch (error) {
+            console.error('Delete failed:', error);
+            alert('Failed to delete resource');
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -115,7 +146,7 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                             variant="ghost"
                                             size="icon"
                                             className="h-9 w-9 text-foreground hover:bg-accent"
-                                            onClick={() => {
+                                            onClick={async () => {
                                                 console.log('Download clicked for resource:', {
                                                     title: resource.title,
                                                     type: resource.type,
@@ -128,17 +159,37 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                                     return;
                                                 }
 
-                                                // For file downloads, use download attribute
+                                                // For file downloads, fetch as blob and trigger download
                                                 if (resource.type === 'file') {
-                                                    console.log('Triggering file download for:', resource.url);
-                                                    const link = document.createElement('a');
-                                                    link.href = resource.url;
-                                                    link.download = resource.title || 'download';
-                                                    link.target = '_blank'; // Fallback to opening if download fails
-                                                    document.body.appendChild(link);
-                                                    link.click();
-                                                    document.body.removeChild(link);
-                                                    console.log('Download link clicked');
+                                                    try {
+                                                        console.log('Fetching file as blob:', resource.url);
+
+                                                        // Fetch the file as a blob
+                                                        const response = await fetch(resource.url);
+                                                        if (!response.ok) throw new Error('Failed to fetch file');
+
+                                                        const blob = await response.blob();
+
+                                                        // Create a blob URL
+                                                        const blobUrl = window.URL.createObjectURL(blob);
+
+                                                        // Create a temporary link and trigger download
+                                                        const link = document.createElement('a');
+                                                        link.href = blobUrl;
+                                                        link.download = resource.title || 'download';
+                                                        document.body.appendChild(link);
+                                                        link.click();
+                                                        document.body.removeChild(link);
+
+                                                        // Clean up the blob URL
+                                                        window.URL.revokeObjectURL(blobUrl);
+
+                                                        console.log('Download triggered successfully');
+                                                    } catch (error) {
+                                                        console.error('Download failed:', error);
+                                                        alert('Failed to download file. Opening in new tab instead.');
+                                                        window.open(resource.url, '_blank');
+                                                    }
                                                 } else {
                                                     // For links, open in new tab
                                                     console.log('Opening link in new tab:', resource.url);
@@ -149,6 +200,38 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                         >
                                             {resource.type === 'link' ? <LinkIcon className="h-5 w-5" /> : <Download className="h-5 w-5" />}
                                         </Button>
+                                        {/* Delete Button - Only for resource owner */}
+                                        {user && (resource.addedBy === user.email || resource.addedBy === user.name) && (
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                                                        title="Delete resource"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete Resource?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to delete "{resource.title}"? This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDelete(resourceId)}
+                                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                        >
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        )}
                                     </div>
                                 </CardHeader>
                                 <CardContent className="flex-1 flex flex-col">

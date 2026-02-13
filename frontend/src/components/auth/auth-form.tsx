@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGoogleLogin } from "@react-oauth/google";
 
-export function AuthForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
+export function AuthForm({ onLoginSuccess, returnUrl = '/' }: { onLoginSuccess?: () => void; returnUrl?: string }) {
     const [isLogin, setIsLogin] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -42,7 +42,7 @@ export function AuthForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
                 if (onLoginSuccess) {
                     onLoginSuccess();
                 } else {
-                    router.push("/");
+                    router.push(returnUrl);
                 }
             } catch (err: any) {
                 setError(err.message);
@@ -88,7 +88,7 @@ export function AuthForm({ onLoginSuccess }: { onLoginSuccess?: () => void }) {
             if (onLoginSuccess) {
                 onLoginSuccess();
             } else {
-                router.push("/");
+                router.push(returnUrl);
             }
         } catch (err: any) {
             setError(err.message);

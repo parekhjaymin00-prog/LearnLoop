@@ -23,23 +23,23 @@ export function Hero() {
             <div className="container px-4 md:px-6 relative z-10 flex flex-col items-center text-center">
 
                 {/* Large Logo */}
-                <ScrollReveal className="flex items-center justify-center gap-4 text-primary mb-8">
+                <ScrollReveal className="flex items-center justify-center gap-2 sm:gap-4 text-primary mb-6 sm:mb-8">
                     <motion.span
                         initial={{ rotate: -180, scale: 0 }}
                         animate={{ rotate: 0, scale: 1 }}
                         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                        className="text-8xl md:text-9xl leading-none inline-block">∞</motion.span>
-                    <span className="text-6xl md:text-8xl font-extrabold tracking-tight">LearnLoop</span>
+                        className="text-6xl sm:text-7xl md:text-9xl leading-none inline-block">∞</motion.span>
+                    <span className="text-4xl sm:text-5xl md:text-8xl font-extrabold tracking-tight">LearnLoop</span>
                 </ScrollReveal>
 
                 {/* Tagline */}
                 <ScrollReveal delay={0.1} className="mb-6">
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl">
+                    <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight lg:text-7xl">
                         Learn. Share. <span className="bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">Grow.</span>
                     </h1>
                 </ScrollReveal>
 
-                <ScrollReveal delay={0.2} className="mx-auto max-w-[700px] text-muted-foreground md:text-xl mb-10">
+                <ScrollReveal delay={0.2} className="mx-auto max-w-[700px] text-muted-foreground text-sm sm:text-base md:text-xl mb-8 sm:mb-10 px-4">
                     <p>
                         The knowledge-sharing platform where unstructured chaos meets structured growth.
                         Dive into focused skills and master your craft.

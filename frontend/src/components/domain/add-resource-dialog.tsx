@@ -87,10 +87,26 @@ export default function AddResourceDialog({ domainSlug, topicSlug, onResourceAdd
         }
     }
 
+    const handleAddResourceClick = () => {
+        if (!user) {
+            // Redirect to login with return URL
+            const returnUrl = encodeURIComponent(window.location.pathname);
+            window.location.href = `/login?returnUrl=${returnUrl}`;
+            return;
+        }
+        setIsDialogOpen(true);
+    };
+
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button className="hover:scale-105 transition-transform">
+                <Button
+                    className="hover:scale-105 transition-transform"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handleAddResourceClick();
+                    }}
+                >
                     <Plus className="mr-2 h-4 w-4" /> Add Resource
                 </Button>
             </DialogTrigger>

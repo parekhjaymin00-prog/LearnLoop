@@ -160,37 +160,7 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                                                 }
 
                                                 // For file downloads, fetch as blob and trigger download
-                                                if (resource.type === 'file') {
-                                                    try {
-                                                        console.log('Fetching file as blob:', resource.url);
-
-                                                        // Fetch the file as a blob
-                                                        const response = await fetch(resource.url, { mode: 'cors', credentials: 'omit' });
-                                                        if (!response.ok) throw new Error('Failed to fetch file');
-
-                                                        const blob = await response.blob();
-
-                                                        // Create a blob URL
-                                                        const blobUrl = window.URL.createObjectURL(blob);
-
-                                                        // Create a temporary link and trigger download
-                                                        const link = document.createElement('a');
-                                                        link.href = blobUrl;
-                                                        link.download = resource.title || 'download';
-                                                        document.body.appendChild(link);
-                                                        link.click();
-                                                        document.body.removeChild(link);
-
-                                                        // Clean up the blob URL
-                                                        window.URL.revokeObjectURL(blobUrl);
-
-                                                        console.log('Download triggered successfully');
-                                                    } catch (error) {
-                                                        console.error('Download failed:', error);
-                                                        alert('Failed to download file. Opening in new tab instead.');
-                                                        window.open(resource.url, '_blank');
-                                                    }
-                                                } else {
+                                                if (resource.type === 'file') { const link = document.createElement('a'); link.href = resource.url; link.download = resource.title || 'download'; link.target = '_blank'; link.rel = 'noopener noreferrer'; document.body.appendChild(link); link.click(); document.body.removeChild(link); } else {
                                                     // For links, open in new tab
                                                     console.log('Opening link in new tab:', resource.url);
                                                     window.open(resource.url, '_blank');

@@ -25,13 +25,16 @@ export function UserNav() {
             .toUpperCase();
     };
 
-    if (isLoading) return <ThemeToggle />;
-
     return (
         <div className="flex items-center gap-4">
             <ThemeToggle />
 
-            {user ? (
+            {isLoading ? (
+                // Show login button while loading to prevent delay
+                <Link href="/login" className="text-sm font-medium hover:text-primary transition-colors">
+                    Log In
+                </Link>
+            ) : user ? (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-10 w-10 rounded-full">

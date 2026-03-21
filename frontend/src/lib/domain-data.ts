@@ -39,6 +39,7 @@ export const domainConfig: Record<string, DomainData> = {
             { name: "Stock Market", slug: "stock-market", icon: LineChart },
             { name: "Crypto", slug: "crypto", icon: Coins },
             { name: "Accounting", slug: "accounting", icon: Calculator },
+            { name: "Startup Finance", slug: "startup-finance", icon: TrendingUp },
         ]
     },
     "design": {

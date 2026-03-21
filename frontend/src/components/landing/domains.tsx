@@ -22,7 +22,7 @@ const domains = [
         href: "/domains/finance/personal-finance",
         icon: TrendingUp,
         description: "Investing, Markets, Crypto. Analyze trends smartly.",
-        topics: ["Personal Finance", "Stock Market", "Crypto", "Accounting Basics", "Startup Finance"],
+        topics: ["Personal Finance", "Stock Market", "Crypto", "Accounting", "Startup Finance"],
     },
     {
         title: "Design",

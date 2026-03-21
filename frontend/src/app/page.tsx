@@ -88,8 +88,8 @@ export default function Home() {
           <p className="text-sm text-muted-foreground leading-loose text-center md:text-left">
           </p>
           <div className="flex gap-4">
-            <Link href="#" className="text-sm font-medium hover:underline underline-offset-4">Terms</Link>
-            <Link href="#" className="text-sm font-medium hover:underline underline-offset-4">Privacy</Link>
+            <Link href="/terms" className="text-sm font-medium hover:underline underline-offset-4">Terms</Link>
+            <Link href="/privacy" className="text-sm font-medium hover:underline underline-offset-4">Privacy</Link>
           </div>
         </div>
       </footer>

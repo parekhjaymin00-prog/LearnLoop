@@ -50,6 +50,7 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
     const { user } = useUser();
     const [resources, setResources] = React.useState<Resource[]>(initialResources);
     const [isLoading, setIsLoading] = React.useState(initialResources.length === 0);
+    const [error, setError] = React.useState<string | null>(null);
     const [expandedResourceId, setExpandedResourceId] = React.useState<string | null>(null);
 
     React.useEffect(() => {
@@ -59,14 +60,23 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
         } else {
             const fetchResources = async () => {
                 setIsLoading(true);
+                setError(null);
                 try {
                     const res = await fetch(`/api/resources?domain=${domainSlug}&topic=${topicSlug}`);
                     const data = await res.json();
+
+                    if (!res.ok) {
+                        setError(data.error || "Something went wrong loading resources. Please try again.");
+                        setIsLoading(false);
+                        return;
+                    }
+
                     if (data.resources) {
                         setResources(data.resources);
                     }
                 } catch (err) {
                     console.error("Failed to fetch resources:", err);
+                    setError("Something went wrong loading resources. Please try again.");
                 } finally {
                     setIsLoading(false);
                 }
@@ -113,20 +123,41 @@ export function ResourcesView({ domainSlug, topicSlug, initialResources = [] }: 
                         Files, links, and notes shared by the community. Comment to discuss!
                     </p>
                 </div>
-                <AddResourceDialog
-                    domainSlug={domainSlug}
-                    topicSlug={topicSlug}
-                    onResourceAdded={handleResourceAdded}
-                />
+                {!user ? (
+                    <Button onClick={() => window.location.href = '/login'} className="hover:scale-105 transition-transform">
+                        <Plus className="mr-2 h-4 w-4" /> Add Resource
+                    </Button>
+                ) : (
+                    <AddResourceDialog
+                        domainSlug={domainSlug}
+                        topicSlug={topicSlug}
+                        onResourceAdded={handleResourceAdded}
+                    />
+                )}
             </div>
 
-            {isLoading ? (
+            {isLoading && !error ? (
                 <div className="text-center py-12 border-2 border-dashed rounded-lg text-muted-foreground animate-pulse">
                     <p>Loading resources...</p>
                 </div>
+            ) : error ? (
+                <div className="text-center py-12 border-2 border-dashed rounded-lg text-destructive">
+                    <p>{error}</p>
+                </div>
             ) : resources.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg text-muted-foreground">
-                    <p>No resources yet. Be the first to add one!</p>
+                <div className="text-center py-12 border-2 border-dashed rounded-lg text-muted-foreground flex flex-col items-center gap-4">
+                    <p>No resources yet. Be the first to share something!</p>
+                    {!user ? (
+                        <Button onClick={() => window.location.href = '/login'} className="mt-2 text-sm hover:scale-105 transition-transform">
+                            <Plus className="mr-2 h-4 w-4" /> Add Resource
+                        </Button>
+                    ) : (
+                        <AddResourceDialog
+                            domainSlug={domainSlug}
+                            topicSlug={topicSlug}
+                            onResourceAdded={handleResourceAdded}
+                        />
+                    )}
                 </div>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

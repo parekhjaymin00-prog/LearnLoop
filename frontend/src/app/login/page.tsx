@@ -18,7 +18,7 @@ function LoginContent() {
         }
     }, [user, isLoading, router, returnUrl]);
 
-    if (isLoading || user) {
+    if (isLoading) {
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="animate-spin text-primary text-4xl">∞</div>
@@ -26,12 +26,16 @@ function LoginContent() {
         );
     }
 
+    // If user is logged in, useEffect will redirect. 
+    // Return null while redirecting to avoid flashing the login form.
+    if (user) return null;
+
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-muted/40 p-4 md:p-8">
             <Link href="/" className="absolute top-8 left-8 flex items-center gap-2 text-lg font-bold md:text-xl">
                 <span className="text-2xl text-primary font-bold">∞</span> LearnLoop
             </Link>
-            <div className="w-full max-w-md animate-fade-in-up">
+            <div className="w-full max-w-md">
                 <AuthForm returnUrl={returnUrl} />
             </div>
         </div>

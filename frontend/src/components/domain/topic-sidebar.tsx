@@ -24,7 +24,7 @@ export function TopicSidebar({
         <div className={cn("pb-12 h-screen border-r bg-muted/20", className)}>
             <div className="space-y-4 py-4">
                 <div className="px-3 py-2">
-                    <Link href="/" className="mb-6 flex items-center gap-2 px-4 hover:opacity-80 transition-opacity">
+                    <Link href={`/domains/${domainSlug}`} className="mb-6 flex items-center gap-2 px-4 hover:opacity-80 transition-opacity">
                         <span className="text-2xl text-primary font-bold">∞</span>
                         <span className="font-bold text-lg">{domain.title}</span>
                     </Link>
@@ -47,7 +47,10 @@ export function TopicSidebar({
                                     <Button
                                         key={index}
                                         variant={pathname === href ? "secondary" : "ghost"}
-                                        className="w-full justify-start gap-2"
+                                        className={cn(
+                                            "w-full justify-start gap-2",
+                                            pathname === href && "bg-primary/10 text-primary font-medium"
+                                        )}
                                         asChild
                                     >
                                         <Link href={href}>

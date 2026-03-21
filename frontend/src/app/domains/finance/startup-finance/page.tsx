@@ -6,44 +6,24 @@ import { notFound } from "next/navigation";
 import connectDB from '@/lib/db';
 import Resource from '@/models/Resource';
 import { mockStore } from '@/lib/mock-store';
-
-interface PageProps {
-    params: Promise<{
-        domainSlug: string;
-        topic: string;
-    }>
-}
-
 import { Metadata } from 'next';
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { domainSlug, topic } = await params;
-    const domain = domainConfig[domainSlug];
-    if (!domain) return { title: "Not Found" };
-    
-    const topicConfig = domain.topics.find(t => t.slug === topic);
-    const topicTitle = topicConfig ? topicConfig.name : topic;
+const DOMAIN_SLUG = "finance";
+const TOPIC_SLUG = "startup-finance";
 
-    return {
-        title: `${topicTitle} | ${domain.title} | LearnLoop`,
-        description: `Share resources and collaborate with the community to learn about ${topicTitle} in the ${domain.title} domain on LearnLoop.`,
-    };
-}
+export const metadata: Metadata = {
+    title: "Startup Finance | Finance | LearnLoop",
+    description: "Share resources and collaborate with the community to learn about Startup Finance in the Finance domain on LearnLoop.",
+};
 
 async function getResources(domain: string, topic: string) {
-    // Simulate network delay to demonstrate Suspense (optional, removed for prod)
-    // await new Promise(resolve => setTimeout(resolve, 1000));
-
     try {
         if (process.env.MOCK_MODE === 'true') {
             return mockStore.getResources(domain, topic);
         }
 
         await connectDB();
-        // Use lean() to get plain objects
         const resources = await Resource.find({ domain, topic }).sort({ createdAt: -1 }).lean();
-
-        // Serialize for Next.js Server Component props
         return JSON.parse(JSON.stringify(resources));
     } catch (error) {
         console.error('Error fetching resources:', error);
@@ -63,14 +43,12 @@ async function ResourcesLoader({ domainSlug, topic }: { domainSlug: string, topi
     );
 }
 
-export default async function TopicPage({ params }: PageProps) {
-    const { domainSlug, topic } = await params;
-
-    const domain = domainConfig[domainSlug];
+export default function StartupFinancePage() {
+    const domain = domainConfig[DOMAIN_SLUG];
     if (!domain) return notFound();
 
-    const topicConfig = domain.topics.find(t => t.slug === topic);
-    const topicTitle = topicConfig ? topicConfig.name : topic;
+    const topicConfig = domain.topics.find(t => t.slug === TOPIC_SLUG);
+    const topicTitle = topicConfig ? topicConfig.name : "Startup Finance";
 
     return (
         <div className="space-y-6">
@@ -82,7 +60,7 @@ export default async function TopicPage({ params }: PageProps) {
             </div>
 
             <Suspense fallback={<ResourcesSkeleton />}>
-                <ResourcesLoader domainSlug={domainSlug} topic={topic} />
+                <ResourcesLoader domainSlug={DOMAIN_SLUG} topic={TOPIC_SLUG} />
             </Suspense>
         </div>
     );

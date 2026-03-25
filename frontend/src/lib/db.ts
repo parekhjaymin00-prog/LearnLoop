@@ -44,3 +44,21 @@ async function connectDB() {
 }
 
 export default connectDB;
+export async function testDatabaseConnection(): Promise<boolean> {
+  try {
+    await connectDB();
+    return mongoose.connection.readyState === 1;
+  } catch {
+    return false;
+  }
+}
+
+export function getConnectionStatus() {
+  return {
+    isConnected: mongoose.connection.readyState === 1,
+    readyState: mongoose.connection.readyState,
+    databaseName: mongoose.connection.name || null,
+  };
+}
+
+export default connectDB;

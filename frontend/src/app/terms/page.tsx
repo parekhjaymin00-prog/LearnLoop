@@ -1,27 +1,20 @@
-import Link from "next/link";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Terms of Service | LearnLoop",
-};
-
 export default function TermsPage() {
-    return (
-        <div className="container mx-auto py-12 px-4 max-w-3xl">
-            <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
-            <div className="prose dark:prose-invert">
-                <p className="mb-4">
-                    Welcome to LearnLoop. By using our platform, you agree to these terms.
-                </p>
-                <p className="mb-4">
-                    These terms are currently a placeholder. Please check back later for the full terms of service regarding your usage of the platform, user-generated content, and community guidelines.
-                </p>
-                <div className="mt-8">
-                    <Link href="/" className="text-primary hover:underline">
-                        &larr; Back to Home
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="max-w-2xl mx-auto py-16 px-4">
+      <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
+      <p className="text-muted-foreground mb-4">
+        By using LearnLoop, you agree to use the platform responsibly 
+        and respect other community members.
+      </p>
+      <p className="text-muted-foreground mb-4">
+        Content shared on LearnLoop should be educational and appropriate. 
+        We reserve the right to remove content that violates community guidelines.
+      </p>
+      <p className="text-muted-foreground mb-4">
+        These terms may be updated periodically. Continued use of the 
+        platform constitutes acceptance of any changes.
+      </p>
+      <a href="/" className="text-primary underline">← Back to Home</a>
+    </div>
+  );
 }

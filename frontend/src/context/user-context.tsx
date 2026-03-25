@@ -26,10 +26,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // Fetch current user from server on mount
     const fetchCurrentUser = async () => {
         try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000);
+            
             const res = await fetch('/api/auth/me', {
-                credentials: 'include', // Include cookies
+                credentials: 'include',
+                signal: controller.signal,
             });
-
+            
+            clearTimeout(timeoutId);
+            
             if (res.ok) {
                 const data = await res.json();
                 setUser(data.user);

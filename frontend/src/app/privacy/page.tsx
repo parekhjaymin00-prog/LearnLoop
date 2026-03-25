@@ -1,27 +1,20 @@
-import Link from "next/link";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-    title: "Privacy Policy | LearnLoop",
-};
-
 export default function PrivacyPage() {
-    return (
-        <div className="container mx-auto py-12 px-4 max-w-3xl">
-            <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-            <div className="prose dark:prose-invert">
-                <p className="mb-4">
-                    At LearnLoop, we take your privacy seriously.
-                </p>
-                <p className="mb-4">
-                    This privacy policy is currently a placeholder. Please check back later for the full details on how we collect, use, and protect your personal information on our platform.
-                </p>
-                <div className="mt-8">
-                    <Link href="/" className="text-primary hover:underline">
-                        &larr; Back to Home
-                    </Link>
-                </div>
-            </div>
-        </div>
-    );
+  return (
+    <div className="max-w-2xl mx-auto py-16 px-4">
+      <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
+      <p className="text-muted-foreground mb-4">
+        LearnLoop collects only the information necessary to provide 
+        our service — your name, email address, and content you share.
+      </p>
+      <p className="text-muted-foreground mb-4">
+        We do not sell your personal data to third parties. 
+        Your data is stored securely and used only to operate the platform.
+      </p>
+      <p className="text-muted-foreground mb-4">
+        You may request deletion of your account and data at any time 
+        by contacting us.
+      </p>
+      <a href="/" className="text-primary underline">← Back to Home</a>
+    </div>
+  );
 }

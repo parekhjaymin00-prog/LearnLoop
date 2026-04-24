@@ -3,9 +3,7 @@ import { ResourcesView } from "@/components/domain/resources-view";
 import { ResourcesSkeleton } from "@/components/domain/resources-skeleton";
 import { domainConfig } from "@/lib/domain-data";
 import { notFound } from "next/navigation";
-import connectDB from '@/lib/db';
-import Resource from '@/models/Resource';
-import { mockStore } from '@/lib/mock-store';
+
 import { Metadata } from 'next';
 
 const DOMAIN_SLUG = "finance";
@@ -18,13 +16,10 @@ export const metadata: Metadata = {
 
 async function getResources(domain: string, topic: string) {
     try {
-        if (process.env.MOCK_MODE === 'true') {
-            return mockStore.getResources(domain, topic);
-        }
-
-        await connectDB();
-        const resources = await Resource.find({ domain, topic }).sort({ createdAt: -1 }).lean();
-        return JSON.parse(JSON.stringify(resources));
+        const res = await fetch(`http://localhost:5000/api/resources?domain=${domain}&topic=${topic}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch from backend');
+        const data = await res.json();
+        return data.resources || [];
     } catch (error) {
         console.error('Error fetching resources:', error);
         return [];

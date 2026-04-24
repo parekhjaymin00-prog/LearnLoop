@@ -1,58 +1,15 @@
-import { NextResponse } from 'next/server';
-import connectDB from '@/lib/db';
-import User from '@/models/User';
-import { getCurrentUser } from '@/lib/auth-utils';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
-        // Get current user from JWT token
-        const currentUser = await getCurrentUser();
-
-        if (!currentUser) {
-            return NextResponse.json(
-                { error: 'Not authenticated' },
-                { status: 401 }
-            );
-        }
-
-        // Check if we're in mock mode
-        if (process.env.MOCK_MODE === 'true') {
-            return NextResponse.json({
-                user: {
-                    id: currentUser.userId,
-                    email: currentUser.email,
-                    name: currentUser.email.split('@')[0],
-                    avatar: currentUser.email.charAt(0).toUpperCase(),
-                }
-            });
-        }
-
-        // Real MongoDB mode - fetch full user data
-        await connectDB();
-
-        const user = await User.findById(currentUser.userId).select('-password');
-
-        if (!user) {
-            return NextResponse.json(
-                { error: 'User not found' },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            user: {
-                id: user._id.toString(),
-                name: user.name,
-                email: user.email,
-                avatar: user.avatar,
-            }
+        const cookie = req.headers.get('cookie') || '';
+        const res = await fetch('http://localhost:5000/api/auth/me', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', 'cookie': cookie },
         });
-
+        const data = await res.json();
+        return NextResponse.json(data, { status: res.status });
     } catch (error: any) {
-        console.error('Get current user error:', error);
-        return NextResponse.json(
-            { error: 'Internal Server Error' },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to connect to backend' }, { status: 500 });
     }
 }

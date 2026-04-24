@@ -1,0 +1,97 @@
+// This is your Prisma schema file
+// Converted from MongoDB/Mongoose models to PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  name                  String
+  email                 String         @unique
+  password              String?        // Optional for Google users
+  avatar                String?
+  googleId              String?
+  isGoogleAccount       Boolean        @default(false)
+  notificationsEnabled  Boolean        @default(true)
+  mentionsEnabled       Boolean        @default(true)
+  createdAt             DateTime       @default(now())
+
+  @@map("users")
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  type      String   // 'link' or 'file'
+  url       String?  // For links
+  size      String?  // For files
+  addedBy   String   // Storing name/email
+  domain    String
+  topic     String
+  createdAt DateTime @default(now())
+
+  @@index([domain, topic])
+  @@index([createdAt(sort: Desc)])
+  @@map("resources")
+}
+
+model Comment {
+  id              String   @id @default(cuid())
+  content         String
+  author          String   // Username of the commenter
+  resourceId      String   // Reference to the resource
+  parentCommentId String?  // For replies (null for top-level)
+  mentions        String[] // Array of @mentioned usernames
+  domain          String
+  topic           String
+  createdAt       DateTime @default(now())
+
+  @@map("comments")
+}
+
+model Message {
+  id          String        @id @default(cuid())
+  content     String
+  sender      String
+  role        String        @default("user") // 'user' or 'other'
+  domain      String
+  topic       String
+  timestamp   String?       // Formatted display time
+  avatar      String?       // Initials or URL
+  createdAt   DateTime      @default(now())
+  attachments Attachment[]
+
+  @@map("messages")
+}
+
+model Attachment {
+  id        String  @id @default(cuid())
+  name      String
+  type      String  // 'image' or 'file'
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  userId        String   // User receiving the notification
+  type          String   // 'mention', 'reply', or 'comment'
+  commentId     String   // Reference to the comment
+  resourceId    String   // Reference to the resource
+  resourceTitle String?  // For display purposes
+  triggeredBy   String   // User who triggered the notification
+  message       String   // Notification message text
+  read          Boolean  @default(false)
+  domain        String
+  topic         String
+  createdAt     DateTime @default(now())
+
+  @@map("notifications")
+}

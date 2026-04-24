@@ -6,7 +6,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
-import connectDB from './lib/db';
+import { testDatabaseConnection } from './lib/db';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -73,8 +73,8 @@ app.use((req: Request, res: Response) => {
 // Start server
 const startServer = async () => {
     try {
-        // Connect to database
-        await connectDB();
+        // Connect to database / test connection
+        await testDatabaseConnection();
 
         app.listen(PORT, () => {
             console.log(`🚀 [SERVER] Backend running on port ${PORT}`);

@@ -1,125 +1,35 @@
-import mongoose from 'mongoose';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 
-if (!MONGODB_URI && process.env.MOCK_MODE !== 'true') {
-    throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env.local'
-    );
-}
+const globalForPrisma = globalThis as unknown as {
+    prisma: PrismaClient | undefined;
+};
 
-/**
- * Global is used here to maintain a cached connection across hot reloads
- * in development. This prevents connections growing exponentially
- * during API Route usage.
- */
-interface MongooseCache {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-}
+const prisma = globalForPrisma.prisma ?? new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
 
-declare global {
-    var mongoose: MongooseCache;
-}
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-let cached = global.mongoose;
+export default prisma;
 
-if (!cached) {
-    cached = global.mongoose = { conn: null, promise: null };
-}
-
-async function connectDB() {
-    if (process.env.MOCK_MODE === 'true') {
-        console.log('🔧 [DB] Running in MOCK MODE - Database disabled');
-        return null;
-    }
-
-    if (cached.conn) {
-        return cached.conn;
-    }
-
-    if (!cached.promise) {
-        const opts = {
-            bufferCommands: false,
-        };
-
-        console.log('🔌 [DB] Attempting to connect to MongoDB...');
-
-        cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
-            console.log('✅ [DB] Successfully connected to MongoDB');
-            console.log(`📊 [DB] Database: ${mongoose.connection.db?.databaseName || 'unknown'}`);
-            return mongoose;
-        });
-    }
-
-    try {
-        cached.conn = await cached.promise;
-    } catch (e: any) {
-        cached.promise = null;
-        console.error('❌ [DB] Failed to connect to MongoDB');
-        console.error(`❌ [DB] Error: ${e.message}`);
-        console.error(`❌ [DB] Stack: ${e.stack}`);
-        throw e;
-    }
-
-    return cached.conn;
-}
-
-/**
- * Test database connection with a simple query
- */
 export async function testDatabaseConnection(): Promise<boolean> {
     try {
-        if (process.env.MOCK_MODE === 'true') {
-            return true;
-        }
-
-        const connection = await connectDB();
-        if (!connection) {
-            return false;
-        }
-
-        // Perform a simple ping operation
-        await mongoose.connection.db.admin().ping();
+        await prisma.$queryRaw`SELECT 1`;
         return true;
-    } catch (error: any) {
-        console.error('❌ [DB] Connection test failed:', error.message);
+    } catch {
         return false;
     }
 }
 
-/**
- * Get current database connection status
- */
 export function getConnectionStatus() {
-    if (process.env.MOCK_MODE === 'true') {
-        return {
-            status: 'MOCK_MODE',
-            databaseName: 'mock-database',
-            readyState: 'mock',
-        };
-    }
-
-    if (!cached.conn) {
-        return {
-            status: 'DISCONNECTED',
-            databaseName: null,
-            readyState: mongoose.connection.readyState,
-        };
-    }
-
-    const readyStates: { [key: number]: string } = {
-        0: 'DISCONNECTED',
-        1: 'CONNECTED',
-        2: 'CONNECTING',
-        3: 'DISCONNECTING',
-    };
-
     return {
-        status: readyStates[mongoose.connection.readyState] || 'UNKNOWN',
-        databaseName: mongoose.connection.db?.databaseName || null,
-        readyState: mongoose.connection.readyState,
+        databaseName: 'learnloop_db',
     };
 }
-
-export default connectDB;

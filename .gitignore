@@ -11,9 +11,25 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+# Dependencies
+node_modules/
+
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Build Artifacts
 dist/
 build/
 .next/
 out/
+f r o n t e n d / p u b l i c / u p l o a d s / *  
+ ! f r o n t e n d / p u b l i c / u p l o a d s / . g i t k e e p  
+.env*

@@ -1,16 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
-        const cookie = req.headers.get('cookie') || '';
-        const url = `http://localhost:5000${req.nextUrl.pathname}${req.nextUrl.search}`;
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json', 'cookie': cookie },
-        });
-        const data = await res.json();
-        return NextResponse.json(data, { status: res.status });
+        await prisma.$queryRaw`SELECT 1`;
+        return NextResponse.json({ serverStatus: 'UP', databaseStatus: 'CONNECTED', serverTime: new Date().toISOString() });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to connect to backend' }, { status: 500 });
+        return NextResponse.json({ serverStatus: 'UP', databaseStatus: 'ERROR', error: error.message }, { status: 503 });
     }
 }

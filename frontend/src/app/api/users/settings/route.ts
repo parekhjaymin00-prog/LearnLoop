@@ -1,33 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
 
 export async function GET(req: NextRequest) {
     try {
-        const cookie = req.headers.get('cookie') || '';
-        const url = `http://localhost:5000${req.nextUrl.pathname}${req.nextUrl.search}`;
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json', 'cookie': cookie },
-        });
-        const data = await res.json();
-        return NextResponse.json(data, { status: res.status });
+        const token = req.cookies.get('auth-token')?.value;
+        if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; email: string };
+        const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
+        if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return NextResponse.json({ settings: { notificationsEnabled: user.notificationsEnabled, mentionsEnabled: user.mentionsEnabled } });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to connect to backend' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
     }
 }
 
 export async function PATCH(req: NextRequest) {
     try {
-        const cookie = req.headers.get('cookie') || '';
-        const body = await req.json();
-        const url = `http://localhost:5000${req.nextUrl.pathname}${req.nextUrl.search}`;
-        const res = await fetch(url, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'cookie': cookie },
-            body: JSON.stringify(body),
-        });
-        const data = await res.json();
-        return NextResponse.json(data, { status: res.status });
+        const token = req.cookies.get('auth-token')?.value;
+        if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; email: string };
+        const { notificationsEnabled, mentionsEnabled } = await req.json();
+        const user = await prisma.user.update({ where: { id: decoded.userId }, data: { ...(typeof notificationsEnabled === 'boolean' && { notificationsEnabled }), ...(typeof mentionsEnabled === 'boolean' && { mentionsEnabled }) } });
+        return NextResponse.json({ settings: { notificationsEnabled: user.notificationsEnabled, mentionsEnabled: user.mentionsEnabled } });
     } catch (error: any) {
-        return NextResponse.json({ error: 'Failed to connect to backend' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
     }
 }

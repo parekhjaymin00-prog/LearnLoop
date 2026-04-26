@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String   @id @default(cuid())
+  name                  String
+  email                 String   @unique
+  password              String?
+  avatar                String?
+  googleId              String?
+  isGoogleAccount       Boolean  @default(false)
+  notificationsEnabled  Boolean  @default(true)
+  mentionsEnabled       Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  @@map("users")
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  type      String
+  url       String?
+  size      String?
+  addedBy   String
+  domain    String
+  topic     String
+  createdAt DateTime @default(now())
+  @@index([domain, topic])
+  @@index([createdAt(sort: Desc)])
+  @@map("resources")
+}
+
+model Comment {
+  id              String   @id @default(cuid())
+  content         String
+  author          String
+  resourceId      String
+  parentCommentId String?
+  mentions        String[]
+  domain          String
+  topic           String
+  createdAt       DateTime @default(now())
+  @@map("comments")
+}
+
+model Message {
+  id          String       @id @default(cuid())
+  content     String
+  sender      String
+  role        String       @default("user")
+  domain      String
+  topic       String
+  timestamp   String?
+  avatar      String?
+  createdAt   DateTime     @default(now())
+  attachments Attachment[]
+  @@map("messages")
+}
+
+model Attachment {
+  id        String  @id @default(cuid())
+  name      String
+  type      String
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  @@map("attachments")
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String
+  commentId     String
+  resourceId    String
+  resourceTitle String?
+  triggeredBy   String
+  message       String
+  read          Boolean  @default(false)
+  domain        String
+  topic         String
+  createdAt     DateTime @default(now())
+  @@map("notifications")
+}
